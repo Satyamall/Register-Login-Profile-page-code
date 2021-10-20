@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <style>
+        .form-input{
+            margin-bottom: 0.5 rem;
+        }
+        .form-input > input{
+            padding: 0.5rem;
+            border: 0.1rem solid;
+        }
+        .hidden{
+            visibility: hidden;
+        }
+        .visible{
+            visibility: visible;
+        }
+    </style>
+</head>
+<body>
+    <a href="login.html">Login</a>
+    <h1>Register</h1>
+    <form id="register-form">
+        <div class="form-input"><input placeholder="Name" type="text" name="name"></div>
+        <div class="form-input"><input placeholder="Email" type="email" name="email"></div>
+        <div class="form-input"><input placeholder="Username"type="text" name="username"></div>
+        <div class="form-input"><input placeholder="Password"type="password" name="password"></div>
+        <div class="form-input"><input placeholder="Mobile"type="number" name="mobile"></div>
+        <div class="form-input"><input placeholder="Description"type="text" name="description"></div>
+
+        <div>
+            <input type="submit">
+        </div>
+    </form>
+
+    <div id="loading-indicator" class="hidden">loading</div>
+    <div id="success-indicator" class="hidden">Successfull</div>
+    <div id="error-indicator" class="hidden">Something went wrong</div>
+
+    <script>
+        window.addEventListener("load", ()=>{
+            const form = document.getElementById("register-form");
+            form.addEventListener("submit",handleSubmit);
+        })
+
+        const updateLoadingIndicator = (status, id)=>{
+            // status - booolean status
+            const loadingIndicator =document.getElementById(id);
+            if(status){
+                loadingIndicator.className = "visible";
+            }
+            else{
+                loadingIndicator.className = "hidden";
+            }
+        }
+
+        const handleSubmit = async ()=>{
+            try{
+                event.preventDefault();
+                // console.log(event.target);
+                const form = new FormData(event.target);
+                const name = form.get("name");
+                const email = form.get("email");
+                const username = form.get("username");
+                const password = form.get("password");
+                const mobile = form.get("mobile");
+                const description = form.get("description");
+                
+                const payload = {
+                    name, 
+                    email, 
+                    username,
+                    password, 
+                    mobile, 
+                    description
+                }
+
+                updateLoadingIndicator(true,"loading-indicator");
+                const response = await registerUser(payload);
+                console.log(response);
+                if(!response.error){
+                    updateLoadingIndicator(true,"success-indicator");
+                }
+
+            }
+            catch(err){
+                // manage error
+                console.log(err)
+            }
+            updateLoadingIndicator(false,"loading-indicator");
+        }
+
+        function registerUser(payload){
+            return fetch("http://localhost:8080/auth/register",{
+                method : "POST",
+                body : JSON.stringify(payload),
+                headers:{
+                    "Content-Type":"application/json"
+                }
+            })
+            .then((res=>res.json()))
+        }
+
+    </script>
+</body>
+</html>
